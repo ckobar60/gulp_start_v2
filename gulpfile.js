@@ -2,6 +2,7 @@ const {src, dest, series, parallel, watch} = require('gulp');
 const sass = require('gulp-sass');
 const concat = require('gulp-concat');
 const browserSync = require('browser-sync').create();
+const uglify = require('gulp-uglify-es').default;
 
 function browsersync() {
     browserSync.init({
@@ -20,12 +21,22 @@ function styles() {
     .pipe(browserSync.stream())
 }
 
+function scripts() {
+    return src('./src/js/**/*.js')
+    .pipe(uglify())
+    .pipe(concat('app.min.js'))
+    .pipe(dest('./build/js/'))
+    .pipe(browserSync.stream())
+}
+
 function watching() {
     watch(['./src/sass/**/*.scss', '!./src/sass/*.min.scss'], styles)
+    watch(['./src/js/**/*.js', '!./src/js/*.min.js'], scripts)
 }
 
 exports.browsersync = browsersync;
 exports.styles = styles;
+exports.scripts = scripts;
 exports.watching = watching;
 
-exports.default = parallel(styles, browsersync, watching)
+exports.default = parallel(styles, scripts, browsersync, watching)
