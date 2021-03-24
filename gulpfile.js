@@ -4,13 +4,13 @@ const concat = require('gulp-concat');
 const browserSync = require('browser-sync').create();
 const uglify = require('gulp-uglify-es').default;
 const del = require('del');
+const autoprefixer = require('gulp-autoprefixer');
 
 function browsersync() {
     browserSync.init({
-        server: {baseDir: './src',
+        server: {baseDir: './src'},
         notify: false,
         online: true,
-        }
     })
 }
 
@@ -18,6 +18,7 @@ function styles() {
     return src('./src/sass/**/*.scss')
     .pipe(sass({outputStyle: 'compressed'}))
     .pipe(concat('style.min.css'))
+    .pipe(autoprefixer({ overrideBrowserslist: ['last 10 versions'], grid: true }))
     .pipe(dest('./build/css/'))
     .pipe(browserSync.stream())
 }
