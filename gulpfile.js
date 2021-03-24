@@ -3,6 +3,7 @@ const sass = require('gulp-sass');
 const concat = require('gulp-concat');
 const browserSync = require('browser-sync').create();
 const uglify = require('gulp-uglify-es').default;
+const del = require('del');
 
 function browsersync() {
     browserSync.init({
@@ -29,6 +30,10 @@ function scripts() {
     .pipe(browserSync.stream())
 }
 
+function clear() {
+    del('./build')
+}
+
 function watching() {
     watch(['./src/sass/**/*.scss', '!./src/sass/*.min.scss'], styles)
     watch(['./src/js/**/*.js', '!./src/js/*.min.js'], scripts)
@@ -39,4 +44,4 @@ exports.styles = styles;
 exports.scripts = scripts;
 exports.watching = watching;
 
-exports.default = parallel(styles, scripts, browsersync, watching)
+exports.default = parallel(clear, styles, scripts, browsersync, watching)
