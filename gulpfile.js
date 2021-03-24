@@ -5,6 +5,7 @@ const browserSync = require('browser-sync').create();
 const uglify = require('gulp-uglify-es').default;
 const del = require('del');
 const autoprefixer = require('gulp-autoprefixer');
+const imagemin = require('gulp-imagemin');
 
 function browsersync() {
     browserSync.init({
@@ -18,7 +19,7 @@ function styles() {
     return src(['node_modules/normalize.css/normalize.css', './src/sass/**/*.scss'])
     .pipe(sass({outputStyle: 'compressed'}))
     .pipe(concat('style.min.css'))
-    .pipe(autoprefixer({ overrideBrowserslist: ['last 10 versions'], grid: true }))
+    .pipe(autoprefixer({ overrideBrowserslist: ['last 5 versions'], grid: true }))
     .pipe(dest('./build/css/'))
     .pipe(browserSync.stream())
 }
@@ -31,8 +32,20 @@ function scripts() {
     .pipe(browserSync.stream())
 }
 
-function clear() {
-    del('./build')
+function image(){
+    return src('./src/images/**/*')
+    .pipe(imagemin([
+        imagemin.gifsicle({interlaced: true}),
+        imagemin.mozjpeg({quality: 75, progressive: true}),
+        imagemin.optipng({optimizationLevel: 5}),
+        imagemin.svgo({
+            plugins: [
+                {removeViewBox: true},
+                {cleanupIDs: false}
+            ]
+        })
+    ]))
+    .pipe(dest('./build/images'))
 }
 
 function html(){
@@ -41,16 +54,22 @@ function html(){
     .pipe(browserSync.stream())
 }
 
+function clear() {
+    del('./build')
+}
+
 function watching() {
     watch(['./src/sass/**/*.scss', '!./src/sass/*.min.scss'], styles)
     watch(['./src/js/**/*.js', '!./src/js/*.min.js'], scripts)
     watch(('./src/**/*.html'), html)
+    watch(('./src/images/**/*'), image)
 }
 
 exports.browsersync = browsersync;
 exports.styles = styles;
 exports.html = html;
 exports.scripts = scripts;
+exports.image = image;
 exports.watching = watching;
 
-exports.default = (clear, parallel(html, styles, scripts, browsersync, watching));
+exports.default = (clear, parallel(html, styles, scripts, image, browsersync, watching));
