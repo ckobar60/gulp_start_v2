@@ -15,7 +15,7 @@ function browsersync() {
 
 function styles() {
     return src('./src/sass/**/*.scss')
-    .pipe(sass())
+    .pipe(sass({outputStyle: 'compressed'}))
     .pipe(concat('style.min.css'))
     .pipe(dest('./build/css/'))
     .pipe(browserSync.stream())
