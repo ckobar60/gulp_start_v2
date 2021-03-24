@@ -38,6 +38,7 @@ function clear() {
 function watching() {
     watch(['./src/sass/**/*.scss', '!./src/sass/*.min.scss'], styles)
     watch(['./src/js/**/*.js', '!./src/js/*.min.js'], scripts)
+    watch('./src/**/*.html').on('change', browserSync.reload)
 }
 
 exports.browsersync = browsersync;
