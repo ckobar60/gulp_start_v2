@@ -8,14 +8,14 @@ const autoprefixer = require('gulp-autoprefixer');
 
 function browsersync() {
     browserSync.init({
-        server: {baseDir: './src'},
+        server: {baseDir: './build'},
         notify: false,
         online: true,
     })
 }
 
 function styles() {
-    return src('./src/sass/**/*.scss')
+    return src(['node_modules/normalize.css/normalize.css', './src/sass/**/*.scss'])
     .pipe(sass({outputStyle: 'compressed'}))
     .pipe(concat('style.min.css'))
     .pipe(autoprefixer({ overrideBrowserslist: ['last 10 versions'], grid: true }))
@@ -35,15 +35,22 @@ function clear() {
     del('./build')
 }
 
+function html(){
+    return src('./src/**/*.html')
+    .pipe(dest('./build'))
+    .pipe(browserSync.stream())
+}
+
 function watching() {
     watch(['./src/sass/**/*.scss', '!./src/sass/*.min.scss'], styles)
     watch(['./src/js/**/*.js', '!./src/js/*.min.js'], scripts)
-    watch('./src/**/*.html').on('change', browserSync.reload)
+    watch(('./src/**/*.html'), html)
 }
 
 exports.browsersync = browsersync;
 exports.styles = styles;
+exports.html = html;
 exports.scripts = scripts;
 exports.watching = watching;
 
-exports.default = parallel(clear, styles, scripts, browsersync, watching)
+exports.default = (clear, parallel(html, styles, scripts, browsersync, watching));
